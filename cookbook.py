@@ -18,24 +18,23 @@ class JRE(Component):
     
     def install_from_binary(self):
         "Install using the binary (it'll download you don't have the file)"
-        filename = raw_input(('If you have the file jre-6u20-linux-x64-rpm.bin, '
-                              'please specify the complete path (if not just '
-                              "hit ENTER so it'll be downloaded):\n"))
-        if not filename:
-            print('Downloading ...')
-            filename = '/tmp/jre-6u20-linux-x64-rpm.bin'
-            url = 'http://javadl.sun.com/webapps/download/AutoDL?BundleId=39488'
-            java_download = sh_io('wget %s -O %s' % (url, filename))
-            if java_download != 0:
-                print('Download failed!')
-                return False
+        filename = '/tmp/jre-6u20-linux-x64-rpm.bin'
+        url = 'http://javadl.sun.com/webapps/download/AutoDL?BundleId=39488'
+        if not ask_or_download(filename, url):
+            return False
         sh('chmod +x %s' % filename)
-        return sh_io(filename) == 0
+        return sh_io(filename)
 
 
     def install_yum(self):
         'Install using YUM'
-        return sh_io('yum install -y java-1.6.0-openjdk') == 0
+        return sh_io('yum install -y java-1.6.0-openjdk')
+
+
+    def install_apt(self):
+        'Install using aptitude'
+        #TODO: needs non-free on Debian. should configure apt first
+        return sh_io('aptitude -y install sun-java6-jre')
 
 
 class MySQLServer(Component):
@@ -52,11 +51,12 @@ class MySQLServer(Component):
 
     def install_yum(self):
         'Install using YUM'
-        return sh_io('yum install -y mysql-server.x86_64') == 0
+        return sh_io('yum install -y mysql-server.x86_64')
 
 
-    def is_configured(self):
-        return True
+    def install_apt(self):
+        'Install using aptitude'
+        return sh_io('aptitude -y install mysql-server')
 
 
 class DummyOne(Component):

@@ -1,7 +1,11 @@
-- Organize the internal API
+[DOING]
 - API: add some syntatic sugar (like sh() etc.)
-- Implement the uninstall action
+- Organize the internal API
 
+[TODO]
+- After run install(), configure() and uninstall() check is_installed() and is_configured() to check if it worked properly
+- Implement the uninstall action
+- Test checksum of downloaded file
 - Distinguish between different systems (eg.: Debian64, Debian32, Ubuntu64 etc.) and have customized actions in the same recipe for them
 - Create some way to pass params to recipes - something like:
     MySQLServer(conf={'default-storage-engine': 'InnoDB'}, install_path='/opt/...')

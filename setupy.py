@@ -9,9 +9,8 @@ import shlex
 
 print2 = os.sys.stdout.write
 
-
 def sh_io(command):
-    return subprocess.call(shlex.split(command))
+    return subprocess.call(shlex.split(command)) == 0
 
 
 def sh(command):
@@ -21,6 +20,21 @@ def sh(command):
     process.out = process.stdout.read()
     process.err = process.stderr.read()
     return process
+
+
+def download(url, filename):
+    return sh_io('wget -c -t 3 %s -O %s' % (url, filename))
+
+
+
+def ask_or_download(url, filename):
+    filename = raw_input(('If you have the file %s, please specify the complete'
+                          " path (if not just hit ENTER so it'll be "
+                          'downloaded):\n' % filename))
+    if not filename:
+        return download(url, filename)
+    else:
+        return True
 
 
 def get_operating_system():
