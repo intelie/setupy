@@ -2,7 +2,7 @@
 
 import subprocess
 import ConfigParser
-from setupy import ask_yes_no, Component, sh
+from setupy import ask_yes_no, Component, sh, ask_or_download
 import os
 
 
