@@ -2,8 +2,8 @@
 
 import subprocess
 import ConfigParser
-from setupy import execute_command_with_user_io, ask_yes_no, Component, \
-                   operating_system
+from setupy import ask_yes_no, Component, operating_system, sh
+import os
 
 
 class JRE(Component):
@@ -13,18 +13,7 @@ class JRE(Component):
     
 
     def is_installed(self):
-        #TODO: open a file just to get the info of a process?
-        err = open('/tmp/err', 'w')
-
-        #TODO: setupy needs something general to do this code:
-        # Something like return sh('java') == 0
-        try:
-            java_process = subprocess.Popen(['java'], stderr=err, stdout=err)
-        except OSError:
-            self._is_installed = False
-        else:
-            self._is_installed = java_process.wait() == 0
-        err.close()
+        self._is_installed = sh('java').returncode == 0
         return self._is_installed
 
     
@@ -38,28 +27,19 @@ class JRE(Component):
             print('Downloading ...')
             filename = '/tmp/jre-6u20-linux-x64-rpm.bin'
             url = 'http://javadl.sun.com/webapps/download/AutoDL?BundleId=39488'
-            java_download = execute_command_with_user_io('wget %s -O %s' % (url, filename))
+            java_download = sh_io('wget %s -O %s' % (url, filename))
             if java_download != 0:
                 print('Download failed!')
                 return False
-
-        execute_command_with_user_io('chmod +x %s' % filename)
-        java_install = execute_command_with_user_io(filename)
-        if java_install == 0:
-            return True
-        else:
-            return False
+        sh('chmod +x %s' % filename)
+        return sh_io(filename) == 0
 
 
     def install_yum(self):
         '''
         Install using YUM
         '''
-        return_code = execute_command_with_user_io('yum install -y java-1.6.0-openjdk')
-        if return_code == 0:
-            return True
-        else:
-            return False
+        return sh_io('yum install -y java-1.6.0-openjdk') == 0
 
 
 class MySQLServer(Component):
@@ -69,28 +49,17 @@ class MySQLServer(Component):
 
 
     def is_installed(self):
-        try:
-            f = open('/etc/my.cnf', 'r') #CentOS
-        except IOError:
-            installed_centos = False
-        else:
-            installed_centos = True
-
-        try:
-            f = open('/etc/mysql/my.cnf', 'r') #Debian
-        except IOError:
-            installed_debian = False
-        else:
-            installed_debian = True
-
-        return installed_centos or installed_debian
+        #CentOS: /etc/my.cnf
+        #Debian: /etc/mysql/my.cnf
+        exists = os.path.exists
+        return exists('/etc/my.cnf') or exists('/etc/mysql/my.cnf')
 
 
     def install_yum(self):
         '''
         Install using YUM
         '''
-        mysql_install = execute_command_with_user_io('yum install -y mysql-server.x86_64')
+        mysql_install = sh_io('yum install -y mysql-server.x86_64')
         if mysql_install == 0:
             return True
         else:
@@ -103,21 +72,22 @@ class MySQLServer(Component):
             return False #Only support distributions above
 
         if distribution in ['CentOS', 'RedHat']:
-            execute_command_with_user_io('chkconfig mysqld on')
+            sh('chkconfig mysqld on')
             config_filename = '/etc/my.cnf'
             restart_command = 'service mysqld restart'
         else:
             #TODO: start on boot (Debian default?)
             config_filename = '/etc/mysql/my.cnf'
             restart_command = '/etc/init.d/mysql restart'
-        
-        #I should change some config here - but please, DON'T use ConfigParser
 
-        #Run MySQL        
-        execute_command_with_user_io(restart_command)
+        #TODO: change some config here - but please, DON'T use ConfigParser
+
+        #Restart MySQL (only needed if changed some configuration above)
+        #sh_io(restart_command)
 
 
     def is_configured(self):
+        #TODO: check if MySQL is configured properly
         return True
 
 

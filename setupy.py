@@ -4,8 +4,25 @@ import os
 import subprocess
 import inspect
 import struct
+import shlex
 
 print2 = os.sys.stdout.write
+
+class Storage(object):
+    pass
+
+def sh_io(command):
+    return subprocess.call(shlex.split(command))
+
+
+def sh(command):
+    process = subprocess.Popen(shlex.split(command), stderr=subprocess.PIPE,
+                               stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    process.wait()
+    process.out = process.stdout.read()
+    process.err = process.stderr.read()
+    return process
+
 
 def get_operating_system():
     bits = struct.calcsize('P') * 8
@@ -31,10 +48,6 @@ def get_operating_system():
             return distribution, bits, version
 
 operating_system = get_operating_system()
-
-
-def execute_command_with_user_io(command):
-    return subprocess.call(command.split())
 
 
 def ask_with_limited_answers(question, answers):
@@ -167,6 +180,7 @@ def list_installed(software_list):
             configured = color(' %s   CONFIGURED   ' % yes, background='green')
         print('%20s %20s %20s%s' % (obj.name, installed, configured,
                                     needs_configuration))
+
 
 
 def list_recipes(recipes):
