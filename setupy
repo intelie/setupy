@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+from optparse import OptionParser
+import setupy
+import cookbook
+
+
+parser = OptionParser(usage='Usage: %prog [options] [recipe1 recipe2 ... recipeN]')
+parser.add_option('-l', '--list', help='list installed software',
+                  action='store_true')
+(options, args) = parser.parse_args()
+
+
+if options.list:
+    recipes = setupy.list_recipes(cookbook)
+    setupy.list_installed(recipes)
+else:
+    if not len(args):
+        print parser.format_help()
+    else:
+        to_install = []
+        for arg in args:
+            try:
+                RecipeClass = getattr(cookbook, arg)
+            except AttributeError:
+                print "Recipe %s does not exist!" % arg
+            else:
+                to_install.append(RecipeClass)
+        setupy.install_interactive(to_install)
