@@ -1,0 +1,30 @@
+- Organize the internal API
+- API: add some syntatic sugar (like sh() etc.)
+- Implement the uninstall action
+
+- Distinguish between different systems (eg.: Debian64, Debian32, Ubuntu64 etc.) and have customized actions in the same recipe for them
+- Create some way to pass params to recipes - something like:
+    MySQLServer(conf={'default-storage-engine': 'InnoDB'}, install_path='/opt/...')
+- Better and more flexible output/logging
+- Tests (?)
+- DSL - .nnf files (?)
+- Execute actions in parallel (?)
+- Create customized actions (now only install and configure)
+- Create some option to download cookbooks from other files (locally and remotly)
+- Default to do not ask questions (use default values) -- Configuration over convention!
+  So we need a way to tell recipes the default configurations and a way to interact with some process like  auto-accepting the license of Java, answering MySQL server password to debconf etc.
+  Use `setupy --ask ...` if you want to answer questions
+- `setupy some_recipe` should run all default actions to some_recipe (eg.: install and configure)
+  `setupy --actions action1,action2 some_recipe` will run only action1 and action2 -- need to create a better syntax
+- Some recipes should depend on others. But dependencies should be in some few actions (eg.: recipe X depends on recipe Y/install but not on Y/configure)
+- setupy should store the history of actions (eg.: X/install on YYYY-MM-DD HH:MM:SS)
+- setupy API: needs to verify if the user that is running have permission to run that action (eg.: in some cases only root, others only www-data can/should perform some actions)
+- Recipes should be atomic so a big recipe can depend on other little recipes and it will not create dependency problems on other recipes that depends on the same atomic recipes
+- Create recipes for common software (Apache, PHP etc.)
+- Execute the commands via SSH (not only locally) - use fabric or paramiko
+- Use libcloud to create servers in the cloud
+- Create inventary of installed/configured software, version etc.
+- Create a consistent system to update software
+- Have some kind of database to store information about the server environment and actions executed
+- Problem: what if a recipe configure some software in a way that other recipe will not work properly? Eg.: X requires MySQL and set its default engine to InnoDB but Y needs default engine set to MyISAM. How to identify such kind of conflit? What setupy should do on this situation?
+- Create a recipe do make me coffee
