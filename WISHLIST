@@ -3,6 +3,8 @@
 - Organize the internal API
 
 [TODO]
+- Add license information
+- Add suport to Python installation modules from PyPI via easy_install or pip
 - Input/Output redirections don't work on shell execution (eg.: cat < somefile)
 - After run install(), configure() and uninstall() check is_installed() and is_configured() to check if it worked properly
 - Implement the uninstall action

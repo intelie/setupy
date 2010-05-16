@@ -13,28 +13,32 @@ def sh_io(command):
     return subprocess.call(shlex.split(command)) == 0
 
 
-def sh(command):
+def sh(command, finalize=True):
     process = subprocess.Popen(shlex.split(command), stderr=subprocess.PIPE,
                                stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-    process.wait()
-    process.out = process.stdout.read()
-    process.err = process.stderr.read()
+    if finalize:
+        process.wait()
+        process.out = process.stdout.read()
+        process.err = process.stderr.read()
     return process
 
 
 def download(url, filename):
-    return sh_io('wget -c -t 3 %s -O %s' % (url, filename))
+    if sh_io('wget -c -t 3 "%s" -O "%s"' % (url, filename)):
+        return filename
+    else:
+        return False
 
 
 
 def ask_or_download(url, filename):
-    filename = raw_input(('If you have the file %s, please specify the complete'
-                          " path (if not just hit ENTER so it'll be "
-                          'downloaded):\n' % filename))
-    if not filename:
+    local_filename = raw_input(('If you have the file %s, please specify the '
+                                "complete path (if not just hit ENTER so it'll"
+                                ' be downloaded):\n' % filename))
+    if not local_filename:
         return download(url, filename)
     else:
-        return True
+        return local_filename
 
 
 def get_operating_system():

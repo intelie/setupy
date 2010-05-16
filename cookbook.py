@@ -11,17 +11,46 @@ class JRE(Component):
     
 
     def is_installed(self):
-        return sh('java').returncode == 0
+        try:
+            return sh('java').returncode == 0
+        except OSError:
+            return False
 
     
-    def install_from_binary(self):
-        "Install using the binary (it'll download you don't have the file)"
-        filename = '/tmp/jre-6u20-linux-x64-rpm.bin'
+    def install_binary_rpm_64(self):
+        "Install using the binary RPM (it'll download you don't have the file)"
         url = 'http://javadl.sun.com/webapps/download/AutoDL?BundleId=39488'
-        if not ask_or_download(url, filename):
+        filename = '/tmp/jre-6u20-linux-x64-rpm.bin'
+        filename_on_system = ask_or_download(url, filename)
+        if not filename_on_system:
             return False
-        sh_io('chmod +x %s' % filename)
-        return sh_io(filename)
+        sh_io('chmod +x %s' % filename_on_system)
+        return sh_io(filename_on_system)
+
+    def install_binary_32(self):
+        'Install with the binary 32bit (without RPM)'
+        url = 'http://javadl.sun.com/webapps/download/AutoDL?BundleId=39485'
+        filename = '/tmp/jre-6u20-linux-i586.bin'
+        filename_on_system = ask_or_download(url, filename)
+        if not filename_on_system:
+            return False
+        print2('Installing JRE ... ')
+        sh_io('chmod +x %s' % filename_on_system)
+        java_install = sh(filename_on_system, finalize=False)
+        ask_agree = 'Do you agree to the above license terms? [yes or no]\n'
+        while java_install.stdout.readline() != ask_agree:
+            pass #Read the Java License carefully: line by line
+        java_install.stdin.write('yes\n') #As I've read I can accept
+        out, err = java_install.communicate()
+        java_install.wait()
+        #TODO: now it is unpacked on ./jre1.6.0_20/. What should I do?
+        # Move to /opt and create symlinks on /usr/bin?
+        if java_install.returncode == 0:
+            print('OK')
+            return True
+        else:
+            print('FAILED')
+            return False
 
 
     def install_yum(self):
@@ -33,6 +62,7 @@ class JRE(Component):
         'Install using aptitude'
         #TODO: needs non-free on Debian. should configure apt first
         return sh_io('aptitude -y install sun-java6-jre')
+
 
 
 class MySQLServer(Component):
