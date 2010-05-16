@@ -1,8 +1,6 @@
 # coding: utf-8
 
-import subprocess
-import ConfigParser
-from setupy import ask_yes_no, Component, sh, ask_or_download
+from setupy import Component, sh, sh_io, ask_or_download
 import os
 
 
@@ -20,9 +18,9 @@ class JRE(Component):
         "Install using the binary (it'll download you don't have the file)"
         filename = '/tmp/jre-6u20-linux-x64-rpm.bin'
         url = 'http://javadl.sun.com/webapps/download/AutoDL?BundleId=39488'
-        if not ask_or_download(filename, url):
+        if not ask_or_download(url, filename):
             return False
-        sh('chmod +x %s' % filename)
+        sh_io('chmod +x %s' % filename)
         return sh_io(filename)
 
 
