@@ -6,10 +6,9 @@ import inspect
 import struct
 import shlex
 
+
 print2 = os.sys.stdout.write
 
-class Storage(object):
-    pass
 
 def sh_io(command):
     return subprocess.call(shlex.split(command))
@@ -30,24 +29,19 @@ def get_operating_system():
     if name != 'Posix':
         return name, bits, None
     else:
-        result = open('/tmp/linux_distribution', 'rw')
         try:
-            a = subprocess.Popen(['lsb_release', '-a'], stderr=result, stdout=result)
+            result = sh('lsb_release -a').out
         except OSError:
             return name, bits, None
         else:
             distribution = name
             version = None
-            contents = result.read().split('\n')
-            result.close()
-            for line in contents:
+            for line in result.split('\n'):
                 if line.startswith('Distributor ID:'):
                     distribution = line.split('Distributor ID:')[1].strip()
                 elif line.startswith('Release:'):
                     version = line.split('Release:')[1].strip()
             return distribution, bits, version
-
-operating_system = get_operating_system()
 
 
 def ask_with_limited_answers(question, answers):
@@ -68,14 +62,12 @@ def ask_yes_no(question):
 class Component(object):
 
     def __init__(self):
-        self._is_installed = None
-        self._is_configured = None
         self.needs_configuration = None
         self.name = self.__class__.__name__
 
 
     def is_installed(self):
-        return self._is_installed
+        return False
 
 
     def install(self):
@@ -97,19 +89,16 @@ class Component(object):
             options = [str(x) for x in range(1, len(install_methods) + 1)]
             answer = ask_with_limited_answers(ask % (self.name, menu), options)
         install_method = install_methods[int(answer) - 1]['method']
-        if install_method():
-            self._is_installed = True
-        return self._is_installed
+        return install_method()
 
 
     def is_configured(self):
-        return self._is_configured
+        return False
 
 
     def configure(self):
         #TODO: configure() should act as install()
-        self._is_configured = True
-        return self._is_configured
+        return True
 
     
     def try_install(self):
@@ -148,16 +137,14 @@ class Component(object):
                     return False
 
 def install_interactive(software_list):
-    print('Installing/configuring: %s' % ', '.join([x.__name__ for x in software_list]))
+    software_list_as_string = ', '.join([x.__name__ for x in software_list])
+    print('Installing/configuring: %s' % software_list_as_string)
     ask_continue = 'Do you want to continue with the installtion/configuration of other recipes?'
     for Software in software_list:
         obj = Software()
         if obj.try_install() is False or obj.try_configure() is False:
             if not ask_yes_no(ask_continue):
                 break
-
-
-
 
 
 def list_installed(software_list):
