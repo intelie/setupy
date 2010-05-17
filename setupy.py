@@ -14,6 +14,8 @@ def sh_io(command):
 
 
 def sh(command, finalize=True):
+    #TODO: multicommand is not supported - should it be?
+    # For example: sh does not execute things like "echo a; echo b" ->
     process = subprocess.Popen(shlex.split(command), stderr=subprocess.PIPE,
                                stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     if finalize:
@@ -21,6 +23,10 @@ def sh(command, finalize=True):
         process.out = process.stdout.read()
         process.err = process.stderr.read()
     return process
+
+
+def bash(command, finalize=True):
+    return sh('bash -c "%s"' % command, finalize=finalize)
 
 
 def download(url, filename):
