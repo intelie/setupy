@@ -29,7 +29,7 @@
 - Recipes should be atomic so a big recipe can depend on other little recipes and it will not create dependency problems on other recipes that depends on the same atomic recipes
 - Create recipes for common software (Apache, PHP etc.)
 - Execute the commands via SSH (not only locally) - use fabric or paramiko
-- Use libcloud to create servers in the cloud
+- Use libcloud to create servers in the cloud - maybe http://pypi.python.org/pypi/python-cloudservers/1.1 too
 - Create inventary of installed/configured software, version etc.
 - Create a consistent system to update software
 - Have some kind of database to store information about the server environment and actions executed

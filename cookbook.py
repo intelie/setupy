@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from setupy import Component, sh, sh_io, ask_or_download
+from setupy import Component, sh, sh_io, ask_or_download, print2
 import os
 
 
@@ -53,16 +53,47 @@ class JRE(Component):
             return False
 
 
-    def install_yum(self):
-        'Install using YUM'
-        return sh_io('yum install -y java-1.6.0-openjdk')
+    def add_nonfree_repository(self):
+        sources_list = open('/etc/apt/sources.list', 'r')
+        for line in sources_list:
+            line = line.strip()
+            if not line or line.startswith('#') or line.startswith('deb-src') \
+               or line.startswith('deb http://volatile'):
+                continue
+            splitted = line.split()
+            dist = splitted[2].split('/')[0]
+            url = splitted[1]
+            if 'non-free' in ' '.join(splitted[3:]):
+                sources_list.close()
+                break
+        else:
+            sources_list.close()
+            sources_list = open('/etc/apt/sources.list', 'a')
+            print2('Adding non-free to sources.list ... ')
+            sources_list.write('\ndeb %s %s non-free\n' % (url, dist))
+            sources_list.close()
+            print('OK')
+            print2('Update APT base ... ')
+            if = sh('aptitude update'):
+                print('OK')
+                return True
+            else:
+                return False
 
 
     def install_apt(self):
         'Install using aptitude'
-        #TODO: needs non-free on Debian. should configure apt first
+        distribution = get_operating_system()[0]
+        if distribution == 'Debian':
+            self.add_nonfree_repository()
+
+        #TODO: trust untrusted packages: read aptitude output and say yes
         return sh_io('aptitude -y install sun-java6-jre')
 
+
+    def install_yum(self):
+        'Install using YUM'
+        return sh_io('yum install -y java-1.6.0-openjdk')
 
 
 class MySQLServer(Component):
