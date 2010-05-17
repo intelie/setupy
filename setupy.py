@@ -30,6 +30,31 @@ def download(url, filename):
         return False
 
 
+def ini_parse(lines, section, option, value):
+    triple = (section, option, value)
+    if not '[%s]' % section in lines:
+        lines += '\n[%s]\n%s = %s' % triple
+    else:
+        lines_splitted = lines.split('[%s]' % section)
+        section_text = lines_splitted[1].split('\n[')[0]
+        if '\n%s' % option in section_text:
+            option_value = section_text.split('\n%s' % option)[1].split('\n')[0] 
+            line = '%s%s' % (option, option_value)
+            lines = lines.replace(line, '%s = %s' % (option, value))
+        else:
+            lines = lines.replace('[%s]' % section, '[%s]\n%s = %s' % triple)
+    return lines
+
+
+def ini(filename, section, option, value):
+    file_read = open(filename, 'r')
+    lines = file_read.read()
+    file_read.close()
+    new_lines = ini_parse(lines, section, option, value)
+    file_write = open(filename, 'w')
+    file_write.write(new_lines)
+    file_write.close()
+
 
 def ask_or_download(url, filename):
     local_filename = raw_input(('If you have the file %s, please specify the '

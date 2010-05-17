@@ -74,7 +74,7 @@ class JRE(Component):
             sources_list.close()
             print('OK')
             print2('Update APT base ... ')
-            if = sh('aptitude update'):
+            if sh('aptitude update'):
                 print('OK')
                 return True
             else:
