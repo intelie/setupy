@@ -35,15 +35,23 @@ execute_and_log() {
     fi
 }
 
+if [ ! -z "$(VBoxManage --help|grep '\[-name')" ]; then
+    options="-"
+else
+    options="--"
+fi
+
 #use Linux26_64 for 64-bit machine
 execute_and_log "Creating virtual machine Linux2.6 32-bit based on $ROOT_VDI" VBoxManage createvm -name "$NEW_VM_NAME" -ostype Linux26 -register
-execute_and_log "Setting memory to $VM_MEMORY" VBoxManage modifyvm "$NEW_VM_NAME" --memory $VM_MEMORY
-execute_and_log 'Configuring network card' VBoxManage modifyvm "$NEW_VM_NAME" --nic1 hostif
-execute_and_log -n VBoxManage modifyvm "$NEW_VM_NAME" --nictype1 82543GC
-execute_and_log -n VBoxManage modifyvm "$NEW_VM_NAME" --cableconnected1 on
-#execute_and_log -n VBoxManage modifyvm "$NEW_VM_NAME" --hostifdev1 eth0
+execute_and_log "Setting memory to $VM_MEMORY" VBoxManage modifyvm "$NEW_VM_NAME" ${options}memory $VM_MEMORY
+execute_and_log 'Configuring network card' VBoxManage modifyvm "$NEW_VM_NAME" ${options}nic1 hostif
+execute_and_log -n VBoxManage modifyvm "$NEW_VM_NAME" ${options}nictype1 82543GC
+execute_and_log -n VBoxManage modifyvm "$NEW_VM_NAME" ${options}cableconnected1 on
+if [ "$options" = '-' ]; then
+    execute_and_log -n VBoxManage modifyvm "$NEW_VM_NAME" ${options}hostifdev1 eth0
+fi
 execute_and_log 'Cloning the HD' VBoxManage clonehd $ROOT_VDI $VBOX_PATH/HardDisks/$NEW_VM_NAME.vdi
-execute_and_log 'Enabling SATA' VBoxManage modifyvm "$NEW_VM_NAME" --sata on
+execute_and_log 'Enabling SATA' VBoxManage modifyvm "$NEW_VM_NAME" ${options}sata on
 execute_and_log -n VBoxManage openmedium disk $VBOX_PATH/HardDisks/$NEW_VM_NAME.vdi
-execute_and_log 'Attaching the HD to the new machine' VBoxManage modifyvm $NEW_VM_NAME --hda $VBOX_PATH/HardDisks/$NEW_VM_NAME.vdi
+execute_and_log 'Attaching the HD to the new machine' VBoxManage modifyvm $NEW_VM_NAME ${options}hda $VBOX_PATH/HardDisks/$NEW_VM_NAME.vdi
 execute_and_log 'Starting the virtual machine' VBoxManage startvm "$NEW_VM_NAME"
