@@ -235,3 +235,16 @@ def color(text, color=None, background=None):
         text = '\033[%dm%s\033[0m' % (BACKGROUND_COLORS[background], text)
     return text
 
+
+def rm(*args):
+    for file_ in args:
+        try:
+            os.unlink(file_)
+        except OSError:
+            pass
+
+
+def write_file(filename, content):
+    fp = open(filename, 'w')
+    fp.write(content)
+    fp.close()
