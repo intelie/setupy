@@ -12,9 +12,9 @@ class JRE(Component):
 
     def is_installed(self):
         try:
-            return sh('java').returncode == 0
+            assert sh('java').returncode == 0
         except OSError:
-            return False
+            assert False
 
     
     def install_binary_rpm_64(self):
@@ -105,7 +105,7 @@ class MySQLServer(Component):
     def is_installed(self):
         #CentOS: /etc/my.cnf, Debian: /etc/mysql/my.cnf
         exists = os.path.exists
-        return exists('/etc/my.cnf') or exists('/etc/mysql/my.cnf')
+        assert exists('/etc/my.cnf') or exists('/etc/mysql/my.cnf')
 
 
     def install_yum(self):
@@ -130,7 +130,7 @@ class DummyOne(Component):
 
 
     def is_installed(self):
-        return True
+        assert 42 == 42
 
 
 class DummyTwo(Component):
@@ -144,7 +144,7 @@ class DummyTwo(Component):
 
 
     def is_installed(self):
-        return False
+        assert 0 == 1
 
 
 class DummyThree(Component):
@@ -158,7 +158,7 @@ class DummyThree(Component):
 
 
     def is_installed(self):
-        return False
+        assert 0 == 1
 
 
     def install_dummy(self):
