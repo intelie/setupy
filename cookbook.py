@@ -115,6 +115,7 @@ class MySQLServer(Component):
 
     def install_apt(self):
         'Install using aptitude'
+        #We need to answer debconf for root password
         return sh_io('aptitude -y install mysql-server')
 
 
@@ -139,7 +140,7 @@ class DummyTwo(Component):
 
 
     def is_configured(self):
-        return False
+        assert 42 == 42
 
 
     def is_installed(self):
@@ -153,7 +154,7 @@ class DummyThree(Component):
 
 
     def is_configured(self):
-        return True
+        assert 42 == 42
 
 
     def is_installed(self):

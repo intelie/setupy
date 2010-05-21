@@ -154,7 +154,7 @@ class Component(object):
 
 
     def is_configured(self):
-        return False
+        assert 1 == 1
 
 
     def configure(self):
@@ -181,7 +181,7 @@ class Component(object):
     def try_configure(self):
         print2('Verifying if %s is configured ... ' % self.name)
         try:
-            is_configured = self.is_configured()
+            is_configured = self.is_configured() is None
         except AssertionError:
             is_configured = False
         if is_configured:
@@ -229,7 +229,7 @@ def list_installed(software_list):
         else:
             configured = color(' %s %s ' % (yes, configured), background='green')
         try:
-            is_configured = obj.is_configured()
+            is_configured = obj.is_configured() is None
         except AssertionError:
             is_configured = False
         if is_configured:
