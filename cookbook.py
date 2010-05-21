@@ -125,7 +125,7 @@ class DummyOne(Component):
 
 
     def is_configured(self):
-        return True
+        assert 1 == 0
 
 
     def is_installed(self):
@@ -153,7 +153,7 @@ class DummyThree(Component):
 
 
     def is_configured(self):
-        return False
+        return True
 
 
     def is_installed(self):
