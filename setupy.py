@@ -128,7 +128,7 @@ class Component(object):
 
 
     def is_installed(self):
-        return False
+        assert False
 
 
     def install(self):
@@ -164,7 +164,11 @@ class Component(object):
     
     def try_install(self):
         print2('Verifying if %s is installed ... ' % self.name)
-        if self.is_installed():
+        try:
+            is_installed = self.is_installed() is None
+        except AssertionError:
+            is_installed = False
+        if is_installed:
             print('INSTALLED')
             return None
         else:
@@ -201,6 +205,7 @@ class Component(object):
                     print('FAILED')
                     return False
 
+
 def install_interactive(software_list):
     software_list_as_string = ', '.join([x.__name__ for x in software_list])
     print('Installing/configuring: %s' % software_list_as_string)
@@ -218,7 +223,11 @@ def list_installed(software_list):
     for Software in software_list:
         obj = Software()
         installed = color(' %s NOT INSTALLED ' % no, background='red')
-        if obj.is_installed():
+        try:
+            is_installed = obj.is_installed() is None
+        except AssertionError:
+            is_installed = False
+        if is_installed:
             installed = color(' %s   INSTALLED   ' % yes, background='green')
 
         configured = 'NOT CONFIGURED'
