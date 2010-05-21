@@ -36,19 +36,31 @@ def download(url, filename):
         return False
 
 
-def ini_parse(lines, section, option, value):
+def ini_parse(lines, section, option, value=None):
     triple = (section, option, value)
     if not '[%s]' % section in lines:
-        lines += '\n[%s]\n%s = %s' % triple
+        if not value:
+            return None
+        else:
+            lines += '\n[%s]\n%s = %s' % triple
     else:
         lines_splitted = lines.split('[%s]' % section)
         section_text = lines_splitted[1].split('\n[')[0]
         if '\n%s' % option in section_text:
             option_value = section_text.split('\n%s' % option)[1].split('\n')[0] 
-            line = '%s%s' % (option, option_value)
-            lines = lines.replace(line, '%s = %s' % (option, value))
+            if not value:
+                try:
+                    return option_value.split('=')[1].strip()
+                except IndexError:
+                    return True
+            else:
+                line = '%s%s' % (option, option_value)
+                lines = lines.replace(line, '%s = %s' % (option, value))
         else:
-            lines = lines.replace('[%s]' % section, '[%s]\n%s = %s' % triple)
+            if not value:
+                return None
+            else:
+                lines = lines.replace('[%s]' % section, '[%s]\n%s = %s' % triple)
     return lines
 
 
@@ -168,7 +180,11 @@ class Component(object):
 
     def try_configure(self):
         print2('Verifying if %s is configured ... ' % self.name)
-        if self.is_configured():
+        try:
+            is_configured = self.is_configured()
+        except AssertionError:
+            is_configured = False
+        if is_configured:
             print('CONFIGURED')
             return None
         else:
@@ -212,7 +228,11 @@ def list_installed(software_list):
             configured = color(' %s %s ' % (no, configured), background='red')
         else:
             configured = color(' %s %s ' % (yes, configured), background='green')
-        if obj.is_configured():
+        try:
+            is_configured = obj.is_configured()
+        except AssertionError:
+            is_configured = False
+        if is_configured:
             configured = color(' %s   CONFIGURED   ' % yes, background='green')
         print('%20s %20s %20s%s' % (obj.name, installed, configured,
                                     needs_configuration))
