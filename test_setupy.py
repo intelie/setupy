@@ -1,3 +1,6 @@
+import sys
+argv = sys.argv
+sys.argv = [argv[0]]
 import unittest
 from setupy import ini_parse
 
@@ -92,5 +95,4 @@ class TestIniParser(unittest.TestCase):
         self.assertEqual(ini_parse(input_, self.section, self.option), output)
 
 
-if __name__ == '__main__':
-    unittest.main()
+unittest.main()

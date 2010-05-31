@@ -1,2 +1,3 @@
 utils/vbox.log
 *.pyc
+.coverage
