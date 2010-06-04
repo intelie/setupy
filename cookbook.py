@@ -1,6 +1,7 @@
 # coding: utf-8
 
-from setupy import Component, sh, sh_io, ask_or_download, print2
+from setupy import Component, sh, sh_io, ask_or_download, print2, \
+                   get_operating_system
 import os
 
 
@@ -100,7 +101,16 @@ class MySQLServer(Component):
     def __init__(self):
         Component.__init__(self)
         self.needs_configuration = False
+        self.distribution = get_operating_system()[0]
 
+        if self.distribution in ['CentOS', 'RedHat']:
+            self.config_filename = '/etc/my.cnf'
+            self.restart_command = 'service mysqld restart'
+        elif self.distribution in ['Debian', 'Ubuntu']:
+            self.config_filename = '/etc/mysql/my.cnf'
+            self.restart_command = '/etc/init.d/mysql restart'
+        else:
+            self.configure = lambda: False
 
     def is_installed(self):
         #CentOS: /etc/my.cnf, Debian: /etc/mysql/my.cnf

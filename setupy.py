@@ -5,12 +5,26 @@ import subprocess
 import inspect
 import struct
 import shlex
-
+import tempfile
 
 print2 = os.sys.stdout.write
 
 def sh_io(command):
     return subprocess.call(shlex.split(command)) == 0
+
+
+def bash_script(commands):
+    filename = '%s.sh' % tempfile.mktemp()
+    fp = open(filename, 'w')
+    fp.write(commands)
+    fp.close()
+    sh('chmod +x %s' % filename)
+    sh(filename)
+    sh('rm %s' % filename)
+
+
+def symlink(from_, to):
+    sh('ln -s %s %s', from_, to)
 
 
 def sh(command, finalize=True):
